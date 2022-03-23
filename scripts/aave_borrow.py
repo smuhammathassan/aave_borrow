@@ -2,6 +2,8 @@ from brownie import network, config, accounts, interface
 from scripts.helpful_scripts import get_account
 from scripts.get_weth import get_weth
 from web3 import Web3
+from decimal import Decimal
+
 
 ammount_input = float(input("Enter ammount to deposit: "))
 ammount_in_wei = Web3.toWei(ammount_input, "ether")
@@ -28,6 +30,20 @@ def main():
     dai_eth_price = get_asset_price(
         config["networks"][network.show_active()]["dai_eth_price_feed"]
     )
+    amount_dai_to_borrow = (1 / dai_eth_price) * Decimal(borrowable_eth * 0.95)
+    print(f"We are going to borrow {amount_dai_to_borrow} DAI")
+    dai_address = config["networks"][network.show_active()]["dai_token"]
+    borrow_tx = lending_pool.borrow(
+        dai_address,
+        Web3.toWei(amount_dai_to_borrow, "ether"),
+        1,
+        0,
+        account.address,
+        {"from": account},
+    )
+    borrow_tx.wait(1)
+    print("We borrowed some DAI ...!")
+    get_borrowable_data(lending_pool, account)
 
 
 def get_asset_price(price_feed_address):
@@ -35,7 +51,7 @@ def get_asset_price(price_feed_address):
     latest_price = dai_eth_price_feed.latestRoundData()[1]
     converted_price = Web3.fromWei(latest_price, "ether")
     print(f"latest price of DAI/ETH is {converted_price}")
-    return latest_price
+    return converted_price
 
 
 def get_borrowable_data(landing_pool, account):
