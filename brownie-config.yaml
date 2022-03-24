@@ -5,6 +5,8 @@ compiler:
     remappings:
       - '@aave=aave/protocol-v2@1.0.1'
 dotenv: .env
+settings:
+  gas_limit: "2074044"
 networks:
   default: mainnet-fork
   kovan:
