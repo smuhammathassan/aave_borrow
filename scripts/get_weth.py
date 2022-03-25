@@ -2,6 +2,9 @@ from scripts.helpful_scripts import get_account
 from brownie import interface, network, config
 from web3 import Web3
 
+# ammount_input = float(input("Enter ammount to deposit: "))
+# amount = Web3.toWei(ammount_input, "ether")
+
 
 def get_weth(amount):
 

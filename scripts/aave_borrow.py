@@ -45,7 +45,27 @@ def main():
     print("We borrowed some DAI ...!")
     get_borrowable_data(lending_pool, account)
     print("we are here")
-    repay_all(ammount_in_wei, lending_pool, account)
+    debt_eth = Web3.toWei(total_debt, "ether")
+    repay_all(debt_eth, lending_pool, account)
+    get_borrowable_data(lending_pool, account)
+
+
+def rasd(amount, lending_pool, account):
+    approve_erc20(
+        Web3.toWei(amount, "ether"),
+        lending_pool,
+        config["networks"][network.show_active()]["dai_token"],
+        account,
+    )
+    repay_tx = lending_pool.repay(
+        config["networks"][network.show_active()]["dai_token"],
+        amount,
+        1,
+        account.address,
+        {"from": account, "gasLimit": config["settings"]["gas_limit"]},
+    )
+    repay_tx.wait(1)
+    print("repayed ...!")
 
 
 def repay_all(amount, lending_pool, account):
@@ -63,7 +83,8 @@ def repay_all(amount, lending_pool, account):
         {"from": account},
     )
     repay_tx.wait(1)
-    print("repayed ...!")
+
+    print("Repaid!")
 
 
 def get_asset_price(price_feed_address):
@@ -90,6 +111,7 @@ def get_borrowable_data(landing_pool, account):
     print(f"You are {converted_totalDebtETH} eth in debt.")
     print(f"You can still borrow {converted_availableBorrowsETH} worth of eth")
     return (float(converted_availableBorrowsETH), float(converted_totalDebtETH))
+    # return totalDebtETH
 
 
 def get_landing_pool():
